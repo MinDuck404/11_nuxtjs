@@ -29980,7 +29980,7 @@ a.text-reset:hover {
 .more:after {
     line-height: 1;
     font-family: Unicons;
-    content: "\e94c";
+    content: " →";
     padding-left: .05rem;
     font-size: .9rem;
     font-weight: 400;
@@ -32901,7 +32901,7 @@ mark.doc {
 }
 
 .internal:after {
-    content: "\e94c";
+    content: "→";
     font-size: .8rem
 }
 
@@ -42561,7 +42561,7 @@ img.svg-inject {
 }
 
 .uil-arrow-right:before {
-    content: "\e94c"
+    content: "→"
 }
 
 .uil-arrow-to-bottom:before {
@@ -47721,7 +47721,7 @@ figure.overlay img {
 }
 
 .glightbox-clean .gnext:before {
-    content: "\e94c"
+    content: "→"
 }
 
 .glightbox-clean .gclose svg,
