@@ -92,7 +92,6 @@ export default {
 </script>
 
 <style scoped>
-/* Custom styles for better card layout */
 .card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }

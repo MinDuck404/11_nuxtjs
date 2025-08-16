@@ -96,7 +96,7 @@ const toggleAccordion = (index) => {
 </script>
 
 <style scoped>
-/* Scoped styles để tránh xung đột */
+
 .accordion-button {
   background: transparent;
   border: none;

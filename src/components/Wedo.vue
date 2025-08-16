@@ -14,12 +14,7 @@
         <div class="col-lg-4" v-for="(service, index) in services" :key="index">
           <div class="px-md-15 px-lg-3">
             <figure class="mb-6">
-              <img
-                class="img-fluid"
-                :src="service.image"
- intra                :srcset="service.imageSrcset"
-                :alt="service.title"
-              />
+              <img class="img-fluid" :src="service.image" intra :srcset="service.imageSrcset" :alt="service.title" />
             </figure>
             <h3>{{ service.title }}</h3>
             <p class="mb-2">{{ service.description }}</p>
@@ -35,12 +30,9 @@
     <div class="container pb-14 pb-md-17">
       <div class="row gx-md-8 gx-xl-12 gy-10 align-items-center">
         <div class="col-lg-6 order-lg-2">
-          <div
-            class="card shadow-lg"
+          <div class="card shadow-lg"
             :class="{ 'me-lg-6': index === 0, 'ms-lg-13 mt-6': index === 1, 'mx-lg-6 mt-6': index === 2 }"
-            v-for="(step, index) in strategySteps"
-            :key="index"
-          >
+            v-for="(step, index) in strategySteps" :key="index">
             <div class="card-body p-6">
               <div class="d-flex flex-row">
                 <div>
@@ -60,12 +52,16 @@
           <h2 class="fs-16 text-uppercase text-primary mb-3">Our Strategy</h2>
           <h3 class="display-3 mb-4">Here are 3 working steps to organize our projects.</h3>
           <p>
-            Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna mollis.
+            Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Etiam porta sem malesuada
+            magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna
+            mollis.
           </p>
           <p class="mb-6">
-            Nullam id dolor id nibh ultricies vehicula ut id elit. Vestibulum id ligula porta felis euismod semper. Aenean lacinia bibendum nulla sed consectetur.
+            Nullam id dolor id nibh ultricies vehicula ut id elit. Vestibulum id ligula porta felis euismod semper.
+            Aenean lacinia bibendum nulla sed consectetur.
           </p>
-          <a href="https://sandbox.elemisthemes.com/demo21.html#" class="btn btn-primary rounded-pill mb-0">Learn More</a>
+          <a href="https://sandbox.elemisthemes.com/demo21.html#" class="btn btn-primary rounded-pill mb-0">Learn
+            More</a>
         </div>
       </div>
     </div>
