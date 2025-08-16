@@ -1,15 +1,21 @@
 <template>
     <DefaultLayout>
-        <h1>Welcome to the Home Page</h1>
+    <Reviews />
+    
+    <FAQs />
     </DefaultLayout>
 </template>
 
 <script>
-import DefaultLayout from '../layout/DefaultLayout.vue';
+import DefaultLayout from '@/layout/DefaultLayout.vue';
+import FAQs from '@/components/FAQs.vue';
+import Reviews from "@/components/Reviews.vue";
 
 export default {
   components: {
-    DefaultLayout
+    DefaultLayout,
+    Reviews,
+    FAQs,
   },
   name: 'Home'
 }
