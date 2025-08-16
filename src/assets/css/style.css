@@ -5845,7 +5845,7 @@ fieldset:disabled .btn {
     font-weight: 700 !important;
     content: "";
     border: 0;
-    content: "\e92d"
+    content: "ˇ"
 }
 
 .dropdown-toggle:empty::after {
@@ -6035,7 +6035,7 @@ fieldset:disabled .btn {
     font-weight: 700 !important;
     content: "";
     border: 0;
-    content: "\e932"
+    content: "ˇ"
 }
 
 .dropup .dropdown-toggle:empty::after {
@@ -37510,7 +37510,7 @@ button:focus {
 
     .navbar-expand-sm .dropend .dropdown-toggle:after,
     .navbar-expand-sm .dropstart .dropdown-toggle:after {
-        content: "\e92d" !important
+        content: "ˇ" !important
     }
 
     .navbar-expand-sm .dropstart .dropdown-menu[data-bs-popper] {
@@ -37875,7 +37875,7 @@ button:focus {
 
     .navbar-expand-md .dropend .dropdown-toggle:after,
     .navbar-expand-md .dropstart .dropdown-toggle:after {
-        content: "\e92d" !important
+        content: "ˇ" !important
     }
 
     .navbar-expand-md .dropstart .dropdown-menu[data-bs-popper] {
@@ -38240,7 +38240,7 @@ button:focus {
 
     .navbar-expand-lg .dropend .dropdown-toggle:after,
     .navbar-expand-lg .dropstart .dropdown-toggle:after {
-        content: "\e92d" !important
+        content: "ˇ" !important
     }
 
     .navbar-expand-lg .dropstart .dropdown-menu[data-bs-popper] {
@@ -38605,7 +38605,7 @@ button:focus {
 
     .navbar-expand-xl .dropend .dropdown-toggle:after,
     .navbar-expand-xl .dropstart .dropdown-toggle:after {
-        content: "\e92d" !important
+        content: "ˇ" !important
     }
 
     .navbar-expand-xl .dropstart .dropdown-menu[data-bs-popper] {
@@ -38970,7 +38970,7 @@ button:focus {
 
     .navbar-expand-xxl .dropend .dropdown-toggle:after,
     .navbar-expand-xxl .dropstart .dropdown-toggle:after {
-        content: "\e92d" !important
+        content: "ˇ" !important
     }
 
     .navbar-expand-xxl .dropstart .dropdown-menu[data-bs-popper] {
@@ -39334,7 +39334,7 @@ button:focus {
 
 .navbar-expand .dropend .dropdown-toggle:after,
 .navbar-expand .dropstart .dropdown-toggle:after {
-    content: "\e92d" !important
+    content: "ˇ" !important
 }
 
 .navbar-expand .dropstart .dropdown-menu[data-bs-popper] {
@@ -40277,7 +40277,7 @@ button.hamburger:before {
     font-family: Unicons;
     position: absolute;
     left: 1.3rem;
-    content: "\e932";
+    content: "ˇ";
     font-size: 1.15rem;
     font-weight: 400;
     width: 1rem;
@@ -40292,7 +40292,7 @@ button.hamburger:before {
 }
 
 .accordion-wrapper .card-header button.collapsed:before {
-    content: "\e92d"
+    content: "ˇ"
 }
 
 .accordion-wrapper .card-header button:hover {
@@ -40334,7 +40334,7 @@ button.hamburger:before {
 
 .collapse-link:before {
     font-family: Unicons;
-    content: "\e932";
+    content: "ˇ";
     font-size: 1.15rem;
     font-weight: 400;
     width: 1rem;
@@ -40349,7 +40349,7 @@ button.hamburger:before {
 }
 
 .collapse-link.collapsed:before {
-    content: "\e92d"
+    content: "ˇ"
 }
 
 .collapse-link:hover {
@@ -41156,21 +41156,28 @@ button.hamburger:before {
     font-size: 1.2rem
 }
 
+/* Nút Prev */
 .swiper-controls .swiper-navigation .swiper-button.swiper-button-prev {
-    left: 1rem
+  left: 1rem;
 }
 
 .swiper-controls .swiper-navigation .swiper-button.swiper-button-prev:after {
-    content: "\e949"
+  content: "←";  
+  font-size: 20px;
+  color: #fff;
 }
 
+/* Nút Next */
 .swiper-controls .swiper-navigation .swiper-button.swiper-button-next {
-    right: 1rem
+  right: 1rem;
 }
 
 .swiper-controls .swiper-navigation .swiper-button.swiper-button-next:after {
-    content: "\e94c"
+  content: "→";   
+  font-size: 20px;
+  color: #fff;
 }
+
 
 .swiper-controls .swiper-navigation .swiper-button.swiper-button-disabled {
     background: rgba(var(--bs-white-rgb), .7)
@@ -42430,7 +42437,7 @@ img.svg-inject {
 }
 
 .uil-angle-down:before {
-    content: "\e92d"
+    content: "ˇ"
 }
 
 .uil-angle-left-b:before {
@@ -42450,7 +42457,7 @@ img.svg-inject {
 }
 
 .uil-angle-up:before {
-    content: "\e932"
+    content: "ˇ"
 }
 
 .uil-angry:before {
@@ -49805,4 +49812,3 @@ footer.bg-dark.angled.upper-start:before {
         position: relative
     }
 }
-

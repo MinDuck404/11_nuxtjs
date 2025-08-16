@@ -22,7 +22,8 @@ export default defineNuxtConfig({
     '@/assets/css/plugins.css',
     '@/assets/css/style.css',
     '@/assets/css/sky.css',
-    '@/assets/css/urbanist.css'
+    '@/assets/css/urbanist.css',
+    '@fortawesome/fontawesome-free/css/all.min.css',
   ],
 })
 
