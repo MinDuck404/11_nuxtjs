@@ -1,5 +1,5 @@
 <script setup>
-import { useItemsStore } from '@/stores/useItemstore'
+import { useItemsStore } from '@/stores/usetemstore'
 
 // Khởi tạo store
 const itemsStore = useItemsStore()
