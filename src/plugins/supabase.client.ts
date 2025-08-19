@@ -1,16 +1,22 @@
-import { createClient } from '@supabase/supabase-js'
-import { defineNuxtPlugin } from 'nuxt/app'
+import { createClient } from '@supabase/supabase-js';
+import { defineNuxtPlugin } from 'nuxt/app';
 
-const supabaseUrl = process.env.NUXT_PUBLIC_SUPABASE_URL as string
-const supabaseKey = process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY as string
+export default defineNuxtPlugin((nuxtApp) => {
+  const config = useRuntimeConfig();
+  const supabaseUrl = config.public.supabaseUrl;
+  const supabaseKey = config.public.supabaseKey;
 
-export default defineNuxtPlugin(() => {
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error(`Supabase initialization failed: supabaseUrl (${supabaseUrl}) or supabaseKey (${supabaseKey}) is missing`);
+  }
+
   const supabase = createClient(supabaseUrl, supabaseKey, {
     auth: { persistSession: false }
-  })
+  });
+
   return {
     provide: {
       supabase
     }
-  }
-})
+  };
+});
