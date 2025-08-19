@@ -1,9 +1,18 @@
+<!-- Header.vue -->
 <template>
   <section class="wrapper bg-light">
     <div class="container pt-10 pt-md-14 pb-14 pb-md-16 text-center">
       <div class="row gx-lg-8 gx-xl-12 gy-10 gy-xl-0 mb-14 align-items-center">
         <div class="col-lg-7 order-lg-2">
-          <figure>
+          <figure v-if="heroItem">
+            <img
+              class="img-auto"
+              :src="heroItem.image_url"
+              :srcset="heroItem.image_url + ' 2x'"
+              :alt="heroItem.title"
+            />
+          </figure>
+          <figure v-else>
             <img
               class="img-auto"
               src="/img/i21.png"
@@ -13,23 +22,41 @@
           </figure>
         </div>
         <div class="col-md-10 offset-md-1 offset-lg-0 col-lg-5 text-center text-lg-start">
-          <h1 class="display-1 fs-54 mb-5 mx-md-n5 mx-lg-0 mt-7">
-            A digital agency <br class="d-md-none" />specializing on <br class="d-md-none" />
+          <h1 v-if="heroSection" class="display-1 fs-54 mb-5 mx-md-n5 mx-lg-0 mt-7">
+            {{ heroSection.title }}
+            <br class="d-md-none" />
+            <span class="rotator-fade text-primary">
+              <span class="animate__animated animate__fadeInDown" style="display: inline-block;">
+                {{ heroSection.subtitle?.replace(/\u2026$/, '') || 'mobile design' }}
+              </span>
+            </span>
+          </h1>
+          <h1 v-else class="display-1 fs-54 mb-5 mx-md-n5 mx-lg-0 mt-7">
+            A digital agency
+            <br class="d-md-none" />specializing on
+            <br class="d-md-none" />
             <span class="rotator-fade text-primary">
               <span class="animate__animated animate__fadeInDown" style="display: inline-block;">
                 mobile design
               </span>
             </span>
           </h1>
-          <p class="lead fs-lg mb-7">
+          <p v-if="heroSection && heroSection.subtitle" class="lead fs-lg mb-7">
+            {{ heroSection.subtitle.replace(/\u2026$/, '') }}
+          </p>
+          <p v-else class="lead fs-lg mb-7">
             We are an award winning design agency that strongly believes in the power of creative ideas.
           </p>
           <span>
-            <a class="btn btn-lg btn-primary rounded-pill me-2">Get Started</a>
+            <a v-if="heroItem" :href="heroItem.link_url" class="btn btn-lg btn-primary rounded-pill me-2">
+              {{ heroItem.title }}
+            </a>
+            <a v-else href="#" class="btn btn-lg btn-primary rounded-pill me-2">Get Started</a>
           </span>
         </div>
       </div>
-      <p class="text-center mb-8">Trusted by over 2K+ clients across the world</p>
+      <p v-if="clientsSection" class="text-center mb-8">{{ clientsSection.title }}</p>
+      <p v-else class="text-center mb-8">Trusted by over 2K+ clients across the world</p>
       <div
         class="row row-cols-4 row-cols-md-4 row-cols-lg-7 row-cols-xl-7 gy-10 mb-2 d-flex align-items-center justify-content-center"
       >
@@ -56,7 +83,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useItemStore } from '@/stores/useItemStore';
 
 // Dữ liệu cho danh sách clients
 const clients = ref([
@@ -68,6 +96,53 @@ const clients = ref([
   { name: 'Client 6', image: '/img/c6.png' },
   { name: 'Client 7', image: '/img/c7.png' },
 ]);
+
+// Store instance
+const itemStore = useItemStore();
+
+// State for hero section and item
+const heroSection = ref(null);
+const heroItem = ref(null);
+
+// State for clients section
+const clientsSection = ref(null);
+
+// Fetch data
+const fetchData = async () => {
+  // Fetch hero section
+  const heroSectionData = await itemStore.fetchItem('homepage_sections', 3, { onlyReturn: true });
+  if (heroSectionData) {
+    heroSection.value = heroSectionData;
+  }
+
+  // Fetch hero item (e.g., CTA button and image)
+  const heroItemData = await itemStore.fetchItems('homepage_items', {
+    filters: { section_id: 3 },
+    orderBy: 'order_index',
+    ascending: true,
+    onlyReturn: true,
+    limit: 1 // Chỉ lấy 1 item (CTA button)
+  });
+  if (heroItemData && heroItemData.length > 0) {
+    heroItem.value = heroItemData[0];
+  }
+
+  // Fetch clients section
+  const clientsSectionData = await itemStore.fetchItem('homepage_sections', 4, { onlyReturn: true });
+  if (clientsSectionData) {
+    clientsSection.value = clientsSectionData;
+  }
+};
+
+// Khởi tạo khi component được mounted
+onMounted(() => {
+  fetchData();
+});
+
+// Dọn dẹp khi component bị unmounted
+onUnmounted(() => {
+  itemStore.resetState();
+});
 </script>
 
 <style scoped>

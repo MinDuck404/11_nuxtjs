@@ -1,9 +1,18 @@
+<!-- WhyUs.vue -->
 <template>
   <section class="wrapper bg-gradient-reverse-primary">
     <div class="container pb-14 pb-md-16">
       <div class="row gx-lg-8 gx-xl-12 gy-10 align-items-center">
         <div class="col-lg-7">
-          <figure>
+          <figure v-if="whyUsImage">
+            <img
+              class="img-auto"
+              :src="whyUsImage.image_url"
+              :srcset="whyUsImage.image_url + ' 2x'"
+              :alt="whyUsImage.title || 'Why Us Illustration'"
+            />
+          </figure>
+          <figure v-else>
             <img
               class="img-auto"
               src="/img/i22.png"
@@ -14,7 +23,12 @@
         </div>
         <div class="col-lg-5">
           <h2 class="fs-15 text-uppercase text-primary mb-3">Why Choose Us?</h2>
-          <h3 class="display-3 mb-7">We bring solutions to make life easier.</h3>
+          <h3 v-if="solutionsSection" class="display-3 mb-7">
+            {{ solutionsSection.title }}
+          </h3>
+          <h3 v-else class="display-3 mb-7">
+            We bring solutions to make life easier.
+          </h3>
           <div class="accordion accordion-wrapper" id="accordionExample">
             <div
               v-for="(item, index) in accordionItems"
@@ -62,9 +76,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useItemStore } from '@/stores/useItemStore';
 
-// Dữ liệu cho accordion
+// Store instance
+const itemStore = useItemStore();
+
+// State for solutions section and image
+const solutionsSection = ref(null);
+const whyUsImage = ref(null);
+
+// Dữ liệu cho accordion (tạm thời tĩnh)
 const accordionItems = ref([
   {
     title: 'Professional Design',
@@ -93,10 +115,44 @@ const toggleAccordion = (index) => {
     isOpen: i === index ? !item.isOpen : false,
   }));
 };
+
+// Fetch data
+const fetchData = async () => {
+  try {
+    // Fetch solutions section
+    const solutionsSectionData = await itemStore.fetchItem('homepage_sections', 7, { onlyReturn: true });
+    if (solutionsSectionData) {
+      solutionsSection.value = solutionsSectionData;
+    }
+
+    // Fetch why us image
+    const imageData = await itemStore.fetchItems('homepage_items', {
+      filters: { section_id: 7 },
+      orderBy: 'order_index',
+      ascending: true,
+      onlyReturn: true,
+      limit: 1 // Chỉ lấy 1 item vì hiện tại chỉ có 1 hình ảnh
+    });
+    if (imageData && imageData.length > 0) {
+      whyUsImage.value = imageData[0];
+    }
+  } catch (error) {
+    console.error('Failed to load solutions section or image:', error);
+  }
+};
+
+// Khởi tạo khi component được mounted
+onMounted(() => {
+  fetchData();
+});
+
+// Dọn dẹp khi component bị unmounted
+onUnmounted(() => {
+  itemStore.resetState();
+});
 </script>
 
 <style scoped>
-
 .accordion-button {
   background: transparent;
   border: none;

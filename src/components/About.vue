@@ -1,3 +1,4 @@
+<!-- About.vue -->
 <template>
   <section class="wrapper bg-light">
     <div class="container pt-12 pt-lg-8 pb-14 pb-md-16">
@@ -39,22 +40,25 @@
       </div>
 
       <!-- Team Members Section -->
-      <div class="row grid-view gy-6 gy-xl-0">
-        <div class="col-md-6 col-xl-3" v-for="member in teamMembers" :key="member.id">
+      <div v-if="isLoadingTeam" class="text-center">Loading team...</div>
+      <div v-else-if="hasErrorTeam" class="text-center text-danger">{{ errorTeam }}</div>
+      <div v-else-if="!hasTeamMembers" class="text-center">No team members available.</div>
+      <div v-else class="row grid-view gy-6 gy-xl-0">
+        <div class="col-md-6 col-xl-3" v-for="member in teamItems" :key="member.id">
           <div class="card shadow-lg">
             <div class="card-body">
               <img
                 class="rounded-circle w-15 mb-4"
-                :src="member.image"
-                :srcset="member.imageSrcset"
-                :alt="member.name"
+                :src="member.image_url"
+                :srcset="member.image_url + ' 2x'"
+                :alt="member.title"
               />
-              <h4 class="mb-1">{{ member.name }}</h4>
-              <div class="meta mb-2">{{ member.position }}</div>
-              <p class="mb-2">{{ member.description }}</p>
+              <h4 class="mb-1">{{ member.title }}</h4>
+              <div class="meta mb-2">{{ member.description }}</div>
+              <p class="mb-2">Fermentum massa justo sit amet risus morbi leo.</p> <!-- Default bio -->
               <nav class="nav social mb-0">
                 <a
-                  v-for="social in member.socialLinks"
+                  v-for="social in defaultSocialLinks"
                   :key="social.platform"
                   :href="social.url"
                   @click.prevent="handleSocialClick(social.url)"
@@ -74,27 +78,33 @@
         <div class="row">
           <div class="col-lg-10 col-xl-9 col-xxl-8 mx-auto text-center">
             <h2 class="fs-16 text-uppercase text-primary mb-3">Latest Projects</h2>
-            <h3 class="display-3 mb-10">
+            <h3 v-if="projectsSection" class="display-3 mb-10">
+              {{ projectsSection.title }}
+            </h3>
+            <h3 v-else class="display-3 mb-10">
               Check out some of our awesome projects with creative ideas and great design.
             </h3>
           </div>
         </div>
 
         <!-- Projects Carousel -->
-        <div class="swiper-container grid-view nav-bottom nav-color mb-14">
+        <div v-if="isLoadingProjects" class="text-center">Loading projects...</div>
+        <div v-else-if="hasErrorProjects" class="text-center text-danger">{{ errorProjects }}</div>
+        <div v-else-if="!hasProjects" class="text-center">No projects available.</div>
+        <div v-else class="swiper-container grid-view nav-bottom nav-color mb-14">
           <div class="swiper overflow-visible" ref="projectsSwiper">
             <div class="swiper-wrapper">
               <div
                 class="swiper-slide"
-                v-for="project in projects"
+                v-for="project in projectItems"
                 :key="project.id"
                 :style="{ width: '630px', marginRight: '30px' }"
               >
                 <figure class="rounded mb-7">
-                  <a :href="project.link" @click.prevent="handleProjectClick(project)">
+                  <a :href="project.link_url || '#'" @click.prevent="handleProjectClick(project)">
                     <img
-                      :src="project.image"
-                      :srcset="project.imageSrcset"
+                      :src="project.image_url"
+                      :srcset="project.image_url + ' 2x'"
                       :alt="project.title"
                     />
                   </a>
@@ -103,14 +113,14 @@
                   <div class="post-header">
                     <h2 class="post-title h3">
                       <a
-                        :href="project.link"
+                        :href="project.link_url || '#'"
                         class="link-dark"
                         @click.prevent="handleProjectClick(project)"
                       >
                         {{ project.title }}
                       </a>
                     </h2>
-                    <div class="post-category text-ash">{{ project.category }}</div>
+                    <div class="post-category text-ash">{{ project.description || 'Uncategorized' }}</div>
                   </div>
                 </div>
               </div>
@@ -156,6 +166,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { useItemStore } from '@/stores/useItemStore';
 
 // Dữ liệu trạng thái cho slider
 const currentSlide = ref(0);
@@ -169,116 +180,35 @@ const counters = ref({
   awards: 0,
 });
 
-// Dữ liệu team members
-const teamMembers = ref([
-  {
-    id: 1,
-    name: 'Coriss Ambady',
-    position: 'Financial Analyst',
-    description: 'Fermentum massa justo sit amet risus morbi leo.',
-    image: '/img/te1.jpg',
-    imageSrcset: '/img/te1.jpg 2x',
-    socialLinks: [
-      { platform: 'twitter', url: 'https://twitter.com', icon: ['fab', 'twitter'] },
-      { platform: 'facebook', url: 'https://facebook.com', icon: ['fab', 'facebook-f'] },
-      { platform: 'dribbble', url: 'https://dribbble.com', icon: ['fab', 'dribbble'] },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Cory Zamora',
-    position: 'Marketing Specialist',
-    description: 'Fermentum massa justo sit amet risus morbi leo.',
-    image: '/img/te2.jpg',
-    imageSrcset: '/img/te2.jpg 2x',
-    socialLinks: [
-      { platform: 'twitter', url: '#', icon: ['fab', 'twitter'] },
-      { platform: 'facebook', url: '#', icon: ['fab', 'facebook-f'] },
-      { platform: 'dribbble', url: '#', icon: ['fab', 'dribbble'] },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Nikolas Brooten',
-    position: 'Sales Manager',
-    description: 'Fermentum massa justo sit amet risus morbi leo.',
-    image: '/img/te3.jpg',
-    imageSrcset: '/img/te3.jpg 2x',
-    socialLinks: [
-      { platform: 'twitter', url: '#', icon: ['fab', 'twitter'] },
-      { platform: 'facebook', url: '#', icon: ['fab', 'facebook-f'] },
-      { platform: 'dribbble', url: '#', icon: ['fab', 'dribbble'] },
-    ],
-  },
-  {
-    id: 4,
-    name: 'Jackie Sanders',
-    position: 'Investment Planner',
-    description: 'Fermentum massa justo sit amet risus morbi leo.',
-    image: '/img/te4.jpg',
-    imageSrcset: '/img/te4.jpg 2x',
-    socialLinks: [
-      { platform: 'twitter', url: '#', icon: ['fab', 'twitter'] },
-      { platform: 'facebook', url: '#', icon: ['fab', 'facebook-f'] },
-      { platform: 'dribbble', url: '#', icon: ['fab', 'dribbble'] },
-    ],
-  },
-]);
+// Default social links
+const defaultSocialLinks = [
+  { platform: 'twitter', url: 'https://twitter.com', icon: ['fab', 'twitter'] },
+  { platform: 'facebook', url: 'https://facebook.com', icon: ['fab', 'facebook-f'] },
+  { platform: 'dribbble', url: 'https://dribbble.com', icon: ['fab', 'dribbble'] },
+];
 
-// Dữ liệu projects
-const projects = ref([
-  {
-    id: 1,
-    title: 'Cras Fermentum Sem',
-    category: 'Mobile Design',
-    image: '/img/sp1.jpg',
-    imageSrcset: '/img/sp1.jpg 2x',
-    link: 'https://sandbox.elemisthemes.com/single-project.html',
-  },
-  {
-    id: 2,
-    title: 'Venenatis Euismod Vehicula',
-    category: 'Web Design',
-    image: '/img/sp2.jpg',
-    imageSrcset: '/img/sp2.jpg 2x',
-    link: 'https://sandbox.elemisthemes.com/single-project.html',
-  },
-  {
-    id: 3,
-    title: 'Tortor Tellus Cursus',
-    category: 'Stationary',
-    image: '/img/sp3.jpg',
-    imageSrcset: '/img/sp3.jpg 2x',
-    link: 'https://sandbox.elemisthemes.com/single-project.html',
-  },
-  {
-    id: 4,
-    title: 'Ridiculus Sem Parturient',
-    category: 'Web Application',
-    image: '/img/sp4.jpg',
-    imageSrcset: '/img/sp4.jpg 2x',
-    link: 'https://sandbox.elemisthemes.com/single-project.html',
-  },
-  {
-    id: 5,
-    title: 'Cursus Sollicitudin Adipiscing',
-    category: 'Web Design',
-    image: '/img/sp5.jpg',
-    imageSrcset: '/img/sp5.jpg 2x',
-    link: 'https://sandbox.elemisthemes.com/single-project.html',
-  },
-  {
-    id: 6,
-    title: 'Fringilla Quam Vulputate',
-    category: 'Stationary',
-    image: '/img/sp6.jpg',
-    imageSrcset: '/img/sp6.jpg 2x',
-    link: 'https://sandbox.elemisthemes.com/single-project.html',
-  },
-]);
+// Store instances
+const itemStoreTeam = useItemStore(); // For team
+const itemStoreProjects = useItemStore(); // For projects, separate to avoid conflict
+
+// State for team
+const teamSection = ref(null);
+const teamItems = ref([]);
+const isLoadingTeam = ref(false);
+const hasErrorTeam = ref(false);
+const errorTeam = ref(null);
+const hasTeamMembers = computed(() => teamItems.value.length > 0);
+
+// State for projects
+const projectsSection = ref(null);
+const projectItems = ref([]);
+const isLoadingProjects = ref(false);
+const hasErrorProjects = ref(false);
+const errorProjects = ref(null);
+const hasProjects = computed(() => projectItems.value.length > 0);
 
 // Tính toán số slide tối đa
-const maxSlide = computed(() => Math.max(0, projects.value.length - slidesPerView.value));
+const maxSlide = computed(() => Math.max(0, projectItems.value.length - slidesPerView.value));
 
 // Tham chiếu đến DOM element
 const projectsSwiper = ref(null);
@@ -412,9 +342,9 @@ const addTouchSupport = () => {
 
     if (Math.abs(movedDistance) > 50) {
       if (movedDistance > 0) {
-        nextSlide();
+        prevSlide(); // Swipe right to left: next
       } else {
-        prevSlide();
+        nextSlide(); // Swipe left to right: prev
       }
     } else {
       updateSliderPosition();
@@ -447,9 +377,9 @@ const addTouchSupport = () => {
 
     if (Math.abs(movedDistance) > 50) {
       if (movedDistance > 0) {
-        nextSlide();
-      } else {
         prevSlide();
+      } else {
+        nextSlide();
       }
     } else {
       updateSliderPosition();
@@ -460,9 +390,57 @@ const addTouchSupport = () => {
   });
 };
 
+// Fetch data
+const fetchData = async () => {
+  // Fetch team section
+  const teamSectionData = await itemStoreTeam.fetchItem('homepage_sections', 8, { onlyReturn: true });
+  if (teamSectionData) {
+    teamSection.value = teamSectionData;
+  }
+
+  // Fetch team items
+  isLoadingTeam.value = true;
+  const teamData = await itemStoreTeam.fetchItems('homepage_items', {
+    filters: { section_id: 8 },
+    orderBy: 'order_index',
+    ascending: true,
+    onlyReturn: true
+  });
+  if (teamData) {
+    teamItems.value = teamData;
+  } else {
+    hasErrorTeam.value = true;
+    errorTeam.value = itemStoreTeam.error;
+  }
+  isLoadingTeam.value = false;
+
+  // Fetch projects section
+  const projectsSectionData = await itemStoreProjects.fetchItem('homepage_sections', 9, { onlyReturn: true });
+  if (projectsSectionData) {
+    projectsSection.value = projectsSectionData;
+  }
+
+  // Fetch projects items
+  isLoadingProjects.value = true;
+  const projectsData = await itemStoreProjects.fetchItems('homepage_items', {
+    filters: { section_id: 9 },
+    orderBy: 'order_index',
+    ascending: true,
+    onlyReturn: true
+  });
+  if (projectsData) {
+    projectItems.value = projectsData;
+  } else {
+    hasErrorProjects.value = true;
+    errorProjects.value = itemStoreProjects.error;
+  }
+  isLoadingProjects.value = false;
+};
+
 // Khởi tạo khi component được mounted
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown);
+  fetchData();
   nextTick(() => {
     updateSliderPosition();
     addTouchSupport();
@@ -473,6 +451,8 @@ onMounted(() => {
 // Dọn dẹp khi component bị unmounted
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown);
+  itemStoreTeam.resetState();
+  itemStoreProjects.resetState();
 });
 </script>
 

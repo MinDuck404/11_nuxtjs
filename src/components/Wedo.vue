@@ -1,3 +1,4 @@
+<!-- Wedo.vue -->
 <template>
   <!-- Section: What We Do -->
   <section class="wrapper bg-gradient-primary">
@@ -5,20 +6,26 @@
       <div class="row text-center">
         <div class="col-md-10 offset-md-1 col-lg-8 offset-lg-2">
           <h2 class="fs-16 text-uppercase text-primary mb-3">What We Do?</h2>
-          <h3 class="display-3 mb-10 px-xxl-10">
+          <h3 v-if="servicesSection" class="display-3 mb-10 px-xxl-10">
+            {{ servicesSection.title }}
+          </h3>
+          <h3 v-else class="display-3 mb-10 px-xxl-10">
             The service we offer is specifically designed to meet your needs.
           </h3>
         </div>
       </div>
-      <div class="row gx-lg-8 gx-xl-12 gy-11 px-xxl-5 text-center d-flex align-items-end">
-        <div class="col-lg-4" v-for="(service, index) in services" :key="index">
+      <div v-if="isLoadingServices" class="text-center">Loading services...</div>
+      <div v-else-if="hasErrorServices" class="text-center text-danger">{{ errorServices }}</div>
+      <div v-else-if="!hasServices" class="text-center">No services available.</div>
+      <div v-else class="row gx-lg-8 gx-xl-12 gy-11 px-xxl-5 text-center d-flex align-items-end">
+        <div class="col-lg-4" v-for="service in serviceItems" :key="service.id">
           <div class="px-md-15 px-lg-3">
             <figure class="mb-6">
-              <img class="img-fluid" :src="service.image" intra :srcset="service.imageSrcset" :alt="service.title" />
+              <img class="img-fluid" :src="service.image_url" :srcset="service.image_url + ' 2x'" :alt="service.title" />
             </figure>
             <h3>{{ service.title }}</h3>
             <p class="mb-2">{{ service.description }}</p>
-            <a :href="service.link" class="more hover">Learn More</a>
+            <a :href="service.link_url" class="more hover">Learn More</a>
           </div>
         </div>
       </div>
@@ -30,9 +37,12 @@
     <div class="container pb-14 pb-md-17">
       <div class="row gx-md-8 gx-xl-12 gy-10 align-items-center">
         <div class="col-lg-6 order-lg-2">
-          <div class="card shadow-lg"
+          <div v-if="isLoadingStrategy" class="text-center">Loading strategy...</div>
+          <div v-else-if="hasErrorStrategy" class="text-center text-danger">{{ errorStrategy }}</div>
+          <div v-else-if="!hasStrategySteps" class="text-center">No strategy steps available.</div>
+          <div v-else class="card shadow-lg"
             :class="{ 'me-lg-6': index === 0, 'ms-lg-13 mt-6': index === 1, 'mx-lg-6 mt-6': index === 2 }"
-            v-for="(step, index) in strategySteps" :key="index">
+            v-for="(step, index) in strategyItems" :key="step.id">
             <div class="card-body p-6">
               <div class="d-flex flex-row">
                 <div>
@@ -50,7 +60,12 @@
         </div>
         <div class="col-lg-6">
           <h2 class="fs-16 text-uppercase text-primary mb-3">Our Strategy</h2>
-          <h3 class="display-3 mb-4">Here are 3 working steps to organize our projects.</h3>
+          <h3 v-if="strategySection" class="display-3 mb-4">
+            {{ strategySection.title }}
+          </h3>
+          <h3 v-else class="display-3 mb-4">
+            Here are 3 working steps to organize our projects.
+          </h3>
           <p>
             Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Etiam porta sem malesuada
             magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Nullam quis risus eget urna
@@ -69,51 +84,92 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useItemStore } from '@/stores/useItemStore';
 
-// Dữ liệu cho services
-const services = ref([
-  {
-    title: 'Web Design',
-    description:
-      'Nulla vitae elit libero, a pharetra augue. Donec id elit non mi porta gravida at eget. Fusce dapibus tellus.',
-    image: '/img/i24.png',
-    imageSrcset: '/img/i24.png 2x',
-    link: 'https://sandbox.elemisthemes.com/demo21.html#',
-  },
-  {
-    title: 'Graphic Design',
-    description:
-      'Maecenas faucibus mollis interdum. Vivamus sagittis lacus vel augue laoreet. Sed posuere consectetur.',
-    image: '/img/i19.png',
-    imageSrcset: '/img/i19.png 2x',
-    link: 'https://sandbox.elemisthemes.com/demo21.html#',
-  },
-  {
-    title: '3D Animation',
-    description:
-      'Cras justo odio, dapibus ac facilisis in, egestas eget quam. Praesent commodo cursus magna scelerisque.',
-    image: '/img/i18.png',
-    imageSrcset: '/img/i18.png 2x',
-    link: 'https://sandbox.elemisthemes.com/demo21.html#',
-  },
-]);
+// Store instance
+const itemStore = useItemStore();
 
-// Dữ liệu cho strategy steps
-const strategySteps = ref([
-  {
-    title: 'Collect Ideas',
-    description: 'Nulla vitae elit libero pharetra augue dapibus.',
-  },
-  {
-    title: 'Data Analysis',
-    description: 'Vivamus sagittis lacus vel augue laoreet.',
-  },
-  {
-    title: 'Finalize Product',
-    description: 'Cras mattis consectetur purus sit amet.',
-  },
-]);
+// State for services section and items
+const servicesSection = ref(null);
+const serviceItems = ref([]);
+const isLoadingServices = ref(false);
+const hasErrorServices = ref(false);
+const errorServices = ref(null);
+const hasServices = computed(() => serviceItems.value.length > 0);
+
+// State for strategy section and items
+const strategySection = ref(null);
+const strategyItems = ref([]);
+const isLoadingStrategy = ref(false);
+const hasErrorStrategy = ref(false);
+const errorStrategy = ref(null);
+const hasStrategySteps = computed(() => strategyItems.value.length > 0);
+
+// Fetch data
+const fetchData = async () => {
+  try {
+    // Fetch services section
+    isLoadingServices.value = true;
+    const servicesSectionData = await itemStore.fetchItem('homepage_sections', 5, { onlyReturn: true });
+    if (servicesSectionData) {
+      servicesSection.value = servicesSectionData;
+    }
+
+    // Fetch services items
+    const servicesData = await itemStore.fetchItems('homepage_items', {
+      filters: { section_id: 5 },
+      orderBy: 'order_index',
+      ascending: true,
+      onlyReturn: true
+    });
+    if (servicesData) {
+      serviceItems.value = servicesData;
+    } else {
+      hasErrorServices.value = true;
+      errorServices.value = itemStore.error || 'Failed to load services';
+    }
+
+    // Fetch strategy section
+    isLoadingStrategy.value = true;
+    const strategySectionData = await itemStore.fetchItem('homepage_sections', 6, { onlyReturn: true });
+    if (strategySectionData) {
+      strategySection.value = strategySectionData;
+    }
+
+    // Fetch strategy items
+    const strategyData = await itemStore.fetchItems('homepage_items', {
+      filters: { section_id: 6 },
+      orderBy: 'order_index',
+      ascending: true,
+      onlyReturn: true
+    });
+    if (strategyData) {
+      strategyItems.value = strategyData;
+    } else {
+      hasErrorStrategy.value = true;
+      errorStrategy.value = itemStore.error || 'Failed to load strategy';
+    }
+  } catch (error) {
+    hasErrorServices.value = true;
+    errorServices.value = error.message || 'An error occurred';
+    hasErrorStrategy.value = true;
+    errorStrategy.value = error.message || 'An error occurred';
+  } finally {
+    isLoadingServices.value = false;
+    isLoadingStrategy.value = false;
+  }
+};
+
+// Khởi tạo khi component được mounted
+onMounted(() => {
+  fetchData();
+});
+
+// Dọn dẹp khi component bị unmounted
+onUnmounted(() => {
+  itemStore.resetState();
+});
 </script>
 
 <style scoped>
