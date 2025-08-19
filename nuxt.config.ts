@@ -16,14 +16,28 @@ export default defineNuxtConfig({
   },
   modules: [
     // '@nuxtjs/supabase',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    
   ],
   pinia: {},
+  plugins: ['~/plugins/fontawesome.js'],
+
   css: [
     '@/assets/css/plugins.css',
     '@/assets/css/style.css',
     '@/assets/css/sky.css',
     '@/assets/css/urbanist.css',
-    '@fortawesome/fontawesome-free/css/all.min.css'
+    '@fortawesome/fontawesome-free/css/all.min.css',
+    '@fortawesome/fontawesome-svg-core/styles.css'
   ],
+  app: {
+    head: {
+      link: [
+        {
+          rel: 'stylesheet',
+          href: 'https://unicons.iconscout.com/release/v4.0.8/css/line.css'
+        }
+      ]
+    }
+  }
 });

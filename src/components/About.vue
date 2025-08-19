@@ -15,21 +15,21 @@
           <div class="row align-items-center counter-wrapper gy-6 text-center" ref="counterSection">
             <div class="col-md-4">
               <div class="icon btn btn-circle btn-lg btn-soft-primary pe-none mb-4">
-                <i class="uil uil-presentation-check"></i>
+                <FontAwesomeIcon :icon="['fas', 'keyboard']" />
               </div>
               <h3 class="counter" data-count="1000">{{ formatNumber(counters.projects, 'projects') }}</h3>
               <p>Completed Projects</p>
             </div>
             <div class="col-md-4">
               <div class="icon btn btn-circle btn-lg btn-soft-primary pe-none mb-4">
-                <i class="uil uil-user-check"></i>
+                <FontAwesomeIcon :icon="['fas', 'user']" />
               </div>
               <h3 class="counter" data-count="50000">{{ formatNumber(counters.customers, 'customers') }}</h3>
               <p>Happy Customers</p>
             </div>
             <div class="col-md-4">
               <div class="icon btn btn-circle btn-lg btn-soft-primary pe-none mb-4">
-                <i class="uil uil-trophy"></i>
+                <FontAwesomeIcon :icon="['fas', 'trophy']" />
               </div>
               <h3 class="counter" data-count="20">{{ formatNumber(counters.awards, 'awards') }}</h3>
               <p>Awards Won</p>
@@ -59,7 +59,7 @@
                   :href="social.url"
                   @click.prevent="handleSocialClick(social.url)"
                 >
-                  <i :class="social.icon"></i>
+                  <FontAwesomeIcon :icon="social.icon" />
                 </a>
               </nav>
             </div>
@@ -179,9 +179,9 @@ const teamMembers = ref([
     image: '/img/te1.jpg',
     imageSrcset: '/img/te1.jpg 2x',
     socialLinks: [
-      { platform: 'twitter', url: '#', icon: 'uil uil-twitter' },
-      { platform: 'facebook', url: '#', icon: 'uil uil-facebook-f' },
-      { platform: 'dribbble', url: '#', icon: 'uil uil-dribbble' },
+      { platform: 'twitter', url: 'https://twitter.com', icon: ['fab', 'twitter'] },
+      { platform: 'facebook', url: 'https://facebook.com', icon: ['fab', 'facebook-f'] },
+      { platform: 'dribbble', url: 'https://dribbble.com', icon: ['fab', 'dribbble'] },
     ],
   },
   {
@@ -192,9 +192,9 @@ const teamMembers = ref([
     image: '/img/te2.jpg',
     imageSrcset: '/img/te2.jpg 2x',
     socialLinks: [
-      { platform: 'twitter', url: '#', icon: 'uil uil-twitter' },
-      { platform: 'facebook', url: '#', icon: 'uil uil-facebook-f' },
-      { platform: 'dribbble', url: '#', icon: 'uil uil-dribbble' },
+      { platform: 'twitter', url: '#', icon: ['fab', 'twitter'] },
+      { platform: 'facebook', url: '#', icon: ['fab', 'facebook-f'] },
+      { platform: 'dribbble', url: '#', icon: ['fab', 'dribbble'] },
     ],
   },
   {
@@ -205,9 +205,9 @@ const teamMembers = ref([
     image: '/img/te3.jpg',
     imageSrcset: '/img/te3.jpg 2x',
     socialLinks: [
-      { platform: 'twitter', url: '#', icon: 'uil uil-twitter' },
-      { platform: 'facebook', url: '#', icon: 'uil uil-facebook-f' },
-      { platform: 'dribbble', url: '#', icon: 'uil uil-dribbble' },
+      { platform: 'twitter', url: '#', icon: ['fab', 'twitter'] },
+      { platform: 'facebook', url: '#', icon: ['fab', 'facebook-f'] },
+      { platform: 'dribbble', url: '#', icon: ['fab', 'dribbble'] },
     ],
   },
   {
@@ -218,9 +218,9 @@ const teamMembers = ref([
     image: '/img/te4.jpg',
     imageSrcset: '/img/te4.jpg 2x',
     socialLinks: [
-      { platform: 'twitter', url: '#', icon: 'uil uil-twitter' },
-      { platform: 'facebook', url: '#', icon: 'uil uil-facebook-f' },
-      { platform: 'dribbble', url: '#', icon: 'uil uil-dribbble' },
+      { platform: 'twitter', url: '#', icon: ['fab', 'twitter'] },
+      { platform: 'facebook', url: '#', icon: ['fab', 'facebook-f'] },
+      { platform: 'dribbble', url: '#', icon: ['fab', 'dribbble'] },
     ],
   },
 ]);
@@ -362,7 +362,6 @@ const prevSlide = () => {
 // Xử lý click vào project
 const handleProjectClick = (project) => {
   console.log('Project clicked:', project);
-
   // window.open(project.link, '_blank');
 };
 
