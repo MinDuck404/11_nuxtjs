@@ -42206,7 +42206,7 @@ img.svg-inject {
 
 @font-face {
     font-family: Custom;
-    src: url(../fonts/custom/Custom.woff2) format("woff2"), url(../fonts/custom/Custom.woff) format("woff");
+    src: url(../fonts/Unicons.woff2) format("woff2"), url(../fonts/Unicons.woff) format("woff");
     font-weight: 400;
     font-style: normal;
     font-display: block

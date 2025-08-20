@@ -12,36 +12,42 @@
         </div>
         <!--/column -->
         <div class="col-lg-6">
-          <div v-if="isLoading" class="text-center">Loading...</div>
-          <div v-else-if="hasError" class="text-center text-danger">{{ error }}</div>
-          <div v-else-if="!hasItems" class="text-center">No FAQs available.</div>
-          <div v-else id="accordion-3" class="accordion-wrapper">
-            <div v-for="(faq, index) in items" :key="faq.id" class="card accordion-item shadow-lg">
-              <div class="card-header" :id="`accordion-heading-3-${index + 1}`">
-                <button 
-                  :class="{ 'collapsed': activeAccordion !== index + 1 }" 
-                  @click="toggleAccordion(index + 1)"
-                  :aria-expanded="activeAccordion === index + 1"
-                  :aria-controls="`accordion-collapse-3-${index + 1}`">
-                  <span>{{ faq.title }}</span>
-                  <span class="icon">+</span>
-                </button>
-              </div>
-              <!-- /.card-header -->
-              <div 
-                :id="`accordion-collapse-3-${index + 1}`" 
-                :class="{ 'collapse': true, 'show': activeAccordion === index + 1 }" 
-                :aria-labelledby="`accordion-heading-3-${index + 1}`">
-                <div class="card-body">
-                  <p>{{ faq.description }}</p>
+          <ClientOnly>
+            <div v-if="isLoading" class="text-center">Loading...</div>
+            <div v-else-if="hasError" class="text-center text-danger">{{ error }}</div>
+            <div v-else-if="!hasItems" class="text-center">No FAQs available.</div>
+            <div v-else id="accordion-3" class="accordion-wrapper">
+              <div v-for="(faq, index) in items" :key="faq.id" class="card accordion-item shadow-lg">
+                <div class="card-header" :id="`accordion-heading-3-${index + 1}`">
+                  <button 
+                    :class="{ 'collapsed': activeAccordion !== index + 1 }" 
+                    @click="toggleAccordion(index + 1)"
+                    :aria-expanded="activeAccordion === index + 1"
+                    :aria-controls="`accordion-collapse-3-${index + 1}`">
+                    <span>{{ faq.title }}</span>
+                    <span class="icon">+</span>
+                  </button>
                 </div>
-                <!-- /.card-body -->
+                <!-- /.card-header -->
+                <div 
+                  :id="`accordion-collapse-3-${index + 1}`" 
+                  :class="{ 'collapse': true, 'show': activeAccordion === index + 1 }" 
+                  :aria-labelledby="`accordion-heading-3-${index + 1}`">
+                  <div class="card-body">
+                    <p>{{ faq.description }}</p>
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.collapse -->
               </div>
-              <!-- /.collapse -->
+              <!-- /.card -->
             </div>
-            <!-- /.card -->
-          </div>
-          <!-- /.accordion-wrapper -->
+            <!-- /.accordion-wrapper -->
+            <template #fallback>
+              <!-- SSR fallback content -->
+              <div class="text-center">Loading FAQs...</div>
+            </template>
+          </ClientOnly>
         </div>
         <!--/column -->
       </div>
@@ -72,41 +78,52 @@ export default {
   },
   data() {
     return {
-      activeAccordion: null, // Theo dõi accordion nào đang mở
-      isTransitioning: false, // Tránh click liên tục khi đang animation
-      section: null // Lưu trữ dữ liệu section từ homepage_sections
+      activeAccordion: null,
+      isTransitioning: false,
+      section: null,
+      // Add local state to handle SSR safely
+      mounted: false
     };
   },
   computed: {
     items() {
-      return this.itemStore.items;
+      // Add null checks for SSR safety
+      return this.itemStore?.items || [];
     },
     isLoading() {
-      return this.itemStore.isLoading;
+      // Use 'loading' property from store, not 'isLoading'
+      return this.mounted && (this.itemStore?.loading || false);
     },
     hasError() {
-      return this.itemStore.hasError;
+      return this.mounted && (this.itemStore?.hasError || false);
     },
     error() {
-      return this.itemStore.error;
+      return this.itemStore?.error || '';
     },
     hasItems() {
-      return this.itemStore.hasItems;
+      return this.mounted && (this.itemStore?.hasItems || false);
     }
   },
-  async created() {
-    // Gọi API để lấy section FAQ từ homepage_sections
-    const sectionData = await this.itemStore.fetchItem('homepage_sections', 11, { onlyReturn: true });
-    if (sectionData) {
-      this.section = sectionData;
-    }
+  async mounted() {
+    // Move API calls to mounted hook for client-side only execution
+    this.mounted = true;
+    
+    try {
+      // Fetch section data
+      const sectionData = await this.itemStore.fetchItem('homepage_sections', 11, { onlyReturn: true });
+      if (sectionData) {
+        this.section = sectionData;
+      }
 
-    // Gọi API để lấy danh sách FAQs từ homepage_items
-    await this.itemStore.fetchItems('homepage_items', {
-      filters: { section_id: 11 },
-      orderBy: 'order_index',
-      ascending: true
-    });
+      // Fetch FAQ items
+      await this.itemStore.fetchItems('homepage_items', {
+        filters: { section_id: 11 },
+        orderBy: 'order_index',
+        ascending: true
+      });
+    } catch (error) {
+      console.error('Error fetching FAQ data:', error);
+    }
   },
   methods: {
     toggleAccordion(index) {
@@ -196,13 +213,13 @@ export default {
   },
   beforeUnmount() {
     this.isTransitioning = false;
-    this.itemStore.resetState(); // Reset store khi component bị hủy
+    this.itemStore?.resetState?.(); // Safe call with optional chaining
   }
 };
 </script>
 
 <style scoped>
-/* Giữ nguyên style từ file gốc */
+/* Keep your existing styles */
 .accordion-wrapper {
   all: initial;
   font-family: inherit;
