@@ -4,7 +4,7 @@
     <div class="container flex-lg-row flex-nowrap align-items-center">
       <div class="navbar-brand w-100">
         <a href="#">
-          <img src="/images/logo-dark.png" srcset="/images/logo-dark@2x.png 2x" alt="">
+          <img src="/images/logo-dark.png"  alt="">
         </a>
       </div>
       <div class="navbar-collapse offcanvas offcanvas-nav offcanvas-start">
@@ -205,7 +205,7 @@ const pages = computed(() => navItems.value.filter(item => ['Pages', 'Services',
 const projects = computed(() => navItems.value.filter(item => item.title === 'Projects'));
 const blogs = computed(() => navItems.value.filter(item => item.title === 'Blog' && !item.description?.includes('Posts')));
 const blogPosts = computed(() => navItems.value.filter(item => item.title === 'Blog' && item.description?.includes('Posts')));
-const blocks = computed(() => navItems.value.filter(item => ['About', 'Blog', 'Call to Action', 'Clients', 'Contact', 'Facts', 'FAQ', 'Features', 'Footer', 'Hero', 'Misc', 'Navbar', 'Portfolio', 'Pricing', 'Process', 'Team', 'Testimonials'].includes(item.title)));
+const blocks = computed(() => navItems.value.filter(item => item.title === 'Blocks'));
 const documentation = computed(() => navItems.value.filter(item => item.title === 'Documentation' || item.title === 'Elements'));
 
 // Pages grouped by category
@@ -271,5 +271,18 @@ onMounted(() => {
 .img-svg img {
   width: 50px;
   height: 50px;
+}
+
+.dropdown-item img {
+  height: 100px;
+  width: 100%;
+  object-fit: contain; /* hoặc object-fit: cover nếu muốn cắt ảnh */
+  display: block;
+}
+.img-svg img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* hoặc cover */
+  display: block;
 }
 </style>
