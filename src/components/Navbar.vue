@@ -229,7 +229,7 @@ const singleProjects = computed(() => projects.value.filter(item => item.descrip
 // Documentation split into Usage, Styleguide, and Elements
 const usageItems = computed(() => documentation.value.filter(item => item.position === 'Get Started' || item.description === 'Usage'));
 const styleguideItems = computed(() => documentation.value.filter(item => ['Colors', 'Fonts', 'Icons SVG', 'Icons Font', 'Illustrations', 'Backgrounds', 'Misc'].some(desc => item.description?.includes(desc))));
-const elementsItems = computed(() => documentation.value.filter(item => item.title === 'Elements'));
+const elementsItems = computed(() => documentation.value.filter(item => item.description === 'Elements'));
 
 // Fetch navigation items
 const fetchNavItems = async () => {
