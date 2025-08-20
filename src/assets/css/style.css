@@ -31006,6 +31006,11 @@ figure img {
     border-top-width: 1px !important
 }
 
+.logo-big {
+  transform: scale(2);
+  transform-origin: top left;
+}
+
 .map iframe {
     display: block
 }
