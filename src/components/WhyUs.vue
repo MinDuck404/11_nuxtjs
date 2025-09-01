@@ -76,16 +76,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useItemStore } from '@/stores/useItemStore';
-
-// Store instance
 const itemStore = useItemStore();
-
-// State for solutions section and image
-const solutionsSection = ref(null);
-const whyUsImage = ref(null);
-
+// Solutions section
+const solutionsSection = computed(() => itemStore.homepageSections.find(s => s.id === 7));
+const whyUsImage = computed(() => itemStore.homepageItems.find(i => i.section_id === 7));
 // Dữ liệu cho accordion (tạm thời tĩnh)
 const accordionItems = ref([
   {
@@ -107,7 +101,6 @@ const accordionItems = ref([
     isOpen: false,
   },
 ]);
-
 // Hàm toggle trạng thái accordion
 const toggleAccordion = (index) => {
   accordionItems.value = accordionItems.value.map((item, i) => ({
@@ -115,41 +108,6 @@ const toggleAccordion = (index) => {
     isOpen: i === index ? !item.isOpen : false,
   }));
 };
-
-// Fetch data
-const fetchData = async () => {
-  try {
-    // Fetch solutions section
-    const solutionsSectionData = await itemStore.fetchItem('homepage_sections', 7, { onlyReturn: true });
-    if (solutionsSectionData) {
-      solutionsSection.value = solutionsSectionData;
-    }
-
-    // Fetch why us image
-    const imageData = await itemStore.fetchItems('homepage_items', {
-      filters: { section_id: 7 },
-      orderBy: 'order_index',
-      ascending: true,
-      onlyReturn: true,
-      limit: 1 // Chỉ lấy 1 item vì hiện tại chỉ có 1 hình ảnh
-    });
-    if (imageData && imageData.length > 0) {
-      whyUsImage.value = imageData[0];
-    }
-  } catch (error) {
-    console.error('Failed to load solutions section or image:', error);
-  }
-};
-
-// Khởi tạo khi component được mounted
-onMounted(() => {
-  fetchData();
-});
-
-// Dọn dẹp khi component bị unmounted
-onUnmounted(() => {
-  itemStore.resetState();
-});
 </script>
 
 <style scoped>

@@ -187,18 +187,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useItemStore } from '@/stores/useItemStore';
 
-// Store instance
 const itemStore = useItemStore();
-
-// State for navigation items
-const navItems = ref([]);
-const isLoadingNav = ref(false);
-const hasErrorNav = ref(false);
-const errorNav = ref(null);
-
+// Lấy navigation items từ homepageItems đã cache
+const navItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 1));
 // Computed properties to separate items by category
 const demos = computed(() => navItems.value.filter(item => item.title === 'Demos'));
 const pages = computed(() => navItems.value.filter(item => ['Pages', 'Services', 'About', 'Shop', 'Contact', 'Career', 'Utility'].includes(item.title)));
@@ -207,7 +199,6 @@ const blogs = computed(() => navItems.value.filter(item => item.title === 'Blog'
 const blogPosts = computed(() => navItems.value.filter(item => item.title === 'Blog' && item.description?.includes('Posts')));
 const blocks = computed(() => navItems.value.filter(item => item.title === 'Blocks'));
 const documentation = computed(() => navItems.value.filter(item => item.title === 'Documentation' || item.title === 'Elements'));
-
 // Pages grouped by category
 const pageGroups = computed(() => {
   const groups = {};
@@ -221,44 +212,13 @@ const pageGroups = computed(() => {
     items: group.items
   }));
 });
-
 // Projects split into Project Pages and Single Projects
 const projectPages = computed(() => projects.value.filter(item => item.description === 'Project Pages'));
 const singleProjects = computed(() => projects.value.filter(item => item.description === 'Single Projects'));
-
 // Documentation split into Usage, Styleguide, and Elements
 const usageItems = computed(() => documentation.value.filter(item => item.position === 'Get Started' || item.description === 'Usage'));
 const styleguideItems = computed(() => documentation.value.filter(item => ['Colors', 'Fonts', 'Icons SVG', 'Icons Font', 'Illustrations', 'Backgrounds', 'Misc'].some(desc => item.description?.includes(desc))));
 const elementsItems = computed(() => documentation.value.filter(item => item.description === 'Elements'));
-
-// Fetch navigation items
-const fetchNavItems = async () => {
-  try {
-    isLoadingNav.value = true;
-    const data = await itemStore.fetchItems('homepage_items', {
-      filters: { section_id: 1 },
-      orderBy: 'order_index',
-      ascending: true,
-      onlyReturn: true
-    });
-    if (data) {
-      navItems.value = data;
-    } else {
-      hasErrorNav.value = true;
-      errorNav.value = itemStore.error || 'Failed to load navigation items';
-    }
-  } catch (error) {
-    hasErrorNav.value = true;
-    errorNav.value = error.message || 'An error occurred';
-  } finally {
-    isLoadingNav.value = false;
-  }
-};
-
-// Initialize on component mount
-onMounted(() => {
-  fetchNavItems();
-});
 
 
 </script>

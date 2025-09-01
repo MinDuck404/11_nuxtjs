@@ -10,9 +10,14 @@
 <script >
 import Navbar from '@/components/Navbar.vue'
 import Footer from '@/components/Footer.vue'
+import { useItemStore } from '@/stores/useItemStore'
 
 export default {
-  components: { Navbar, Footer }
+  components: { Navbar, Footer },
+  mounted() {
+    const itemStore = useItemStore();
+    itemStore.fetchHomepageData();
+  }
 }
 </script>
 

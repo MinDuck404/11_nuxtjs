@@ -84,92 +84,21 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useItemStore } from '@/stores/useItemStore';
-
-// Store instance
 const itemStore = useItemStore();
-
-// State for services section and items
-const servicesSection = ref(null);
-const serviceItems = ref([]);
-const isLoadingServices = ref(false);
-const hasErrorServices = ref(false);
-const errorServices = ref(null);
+// Services section
+const servicesSection = computed(() => itemStore.homepageSections.find(s => s.id === 5));
+const serviceItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 5));
+const isLoadingServices = computed(() => itemStore.loading);
+const hasErrorServices = computed(() => !!itemStore.error);
+const errorServices = computed(() => itemStore.error);
 const hasServices = computed(() => serviceItems.value.length > 0);
-
-// State for strategy section and items
-const strategySection = ref(null);
-const strategyItems = ref([]);
-const isLoadingStrategy = ref(false);
-const hasErrorStrategy = ref(false);
-const errorStrategy = ref(null);
+// Strategy section
+const strategySection = computed(() => itemStore.homepageSections.find(s => s.id === 6));
+const strategyItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 6));
+const isLoadingStrategy = computed(() => itemStore.loading);
+const hasErrorStrategy = computed(() => !!itemStore.error);
+const errorStrategy = computed(() => itemStore.error);
 const hasStrategySteps = computed(() => strategyItems.value.length > 0);
-
-// Fetch data
-const fetchData = async () => {
-  try {
-    // Fetch services section
-    isLoadingServices.value = true;
-    const servicesSectionData = await itemStore.fetchItem('homepage_sections', 5, { onlyReturn: true });
-    if (servicesSectionData) {
-      servicesSection.value = servicesSectionData;
-    }
-
-    // Fetch services items
-    const servicesData = await itemStore.fetchItems('homepage_items', {
-      filters: { section_id: 5 },
-      orderBy: 'order_index',
-      ascending: true,
-      onlyReturn: true
-    });
-    if (servicesData) {
-      serviceItems.value = servicesData;
-    } else {
-      hasErrorServices.value = true;
-      errorServices.value = itemStore.error || 'Failed to load services';
-    }
-
-    // Fetch strategy section
-    isLoadingStrategy.value = true;
-    const strategySectionData = await itemStore.fetchItem('homepage_sections', 6, { onlyReturn: true });
-    if (strategySectionData) {
-      strategySection.value = strategySectionData;
-    }
-
-    // Fetch strategy items
-    const strategyData = await itemStore.fetchItems('homepage_items', {
-      filters: { section_id: 6 },
-      orderBy: 'order_index',
-      ascending: true,
-      onlyReturn: true
-    });
-    if (strategyData) {
-      strategyItems.value = strategyData;
-    } else {
-      hasErrorStrategy.value = true;
-      errorStrategy.value = itemStore.error || 'Failed to load strategy';
-    }
-  } catch (error) {
-    hasErrorServices.value = true;
-    errorServices.value = error.message || 'An error occurred';
-    hasErrorStrategy.value = true;
-    errorStrategy.value = error.message || 'An error occurred';
-  } finally {
-    isLoadingServices.value = false;
-    isLoadingStrategy.value = false;
-  }
-};
-
-// Khởi tạo khi component được mounted
-onMounted(() => {
-  fetchData();
-});
-
-// Dọn dẹp khi component bị unmounted
-onUnmounted(() => {
-  itemStore.resetState();
-});
 </script>
 
 <style scoped>

@@ -9,6 +9,10 @@ export const useItemStore = defineStore('items', () => {
   const groupedItems = ref<Record<string, any[]>>({})
   const loading = ref(false)
   const error = ref<string | null>(null)
+    // Homepage data cache
+    const homepageSections = ref<any[]>([])
+    const homepageItems = ref<any[]>([])
+    const homepageLoaded = ref(false)
 
   // Danh sách các table được phép truy cập
   const ALLOWED_TABLES = ['homepage_sections', 'homepage_items']
@@ -212,12 +216,48 @@ export const useItemStore = defineStore('items', () => {
     groupedItems.value = {}
     loading.value = false
     error.value = null
+      homepageSections.value = []
+      homepageItems.value = []
+      homepageLoaded.value = false
   }
 
   // Clear error
   const clearError = () => {
     error.value = null
   }
+  
+    // Fetch all homepage data once
+    const fetchHomepageData = async () => {
+      if (homepageLoaded.value) return;
+      loading.value = true;
+      error.value = null;
+      try {
+        const { $supabase } = useNuxtApp();
+        // Fetch all sections
+        const { data: sections, error: errSections } = await $supabase
+          .from('homepage_sections')
+          .select('*')
+          .order('id', { ascending: true });
+        if (errSections) throw errSections;
+        homepageSections.value = sections || [];
+
+        // Fetch all items
+        const { data: itemsData, error: errItems } = await $supabase
+          .from('homepage_items')
+          .select('*')
+          .order('order_index', { ascending: true });
+        if (errItems) throw errItems;
+        homepageItems.value = itemsData || [];
+
+        homepageLoaded.value = true;
+      } catch (err: any) {
+        error.value = err.message || 'An unexpected error occurred';
+        homepageLoaded.value = false;
+        console.error('Fetch homepage data error:', err);
+      } finally {
+        loading.value = false;
+      }
+    }
 
   return {
     // State
@@ -226,6 +266,9 @@ export const useItemStore = defineStore('items', () => {
     groupedItems,
     loading,
     error,
+      homepageSections,
+      homepageItems,
+      homepageLoaded,
     
     // Actions
     fetchItems,
@@ -233,6 +276,7 @@ export const useItemStore = defineStore('items', () => {
     fetchItemsGroupBy,
     resetState,
     clearError,
+      fetchHomepageData,
     
     // Getters (computed)
     hasItems: computed(() => items.value.length > 0),

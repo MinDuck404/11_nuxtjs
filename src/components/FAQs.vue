@@ -67,157 +67,23 @@
   </section>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue';
 import { useItemStore } from '@/stores/useItemStore';
 
-export default {
-  name: 'FAQs',
-  setup() {
-    const itemStore = useItemStore();
-    return { itemStore };
-  },
-  data() {
-    return {
-      activeAccordion: null,
-      isTransitioning: false,
-      section: null,
-      // Add local state to handle SSR safely
-      mounted: false
-    };
-  },
-  computed: {
-    items() {
-      // Add null checks for SSR safety
-      return this.itemStore?.items || [];
-    },
-    isLoading() {
-      // Use 'loading' property from store, not 'isLoading'
-      return this.mounted && (this.itemStore?.loading || false);
-    },
-    hasError() {
-      return this.mounted && (this.itemStore?.hasError || false);
-    },
-    error() {
-      return this.itemStore?.error || '';
-    },
-    hasItems() {
-      return this.mounted && (this.itemStore?.hasItems || false);
-    }
-  },
-  async mounted() {
-    // Move API calls to mounted hook for client-side only execution
-    this.mounted = true;
-    
-    try {
-      // Fetch section data
-      const sectionData = await this.itemStore.fetchItem('homepage_sections', 11, { onlyReturn: true });
-      if (sectionData) {
-        this.section = sectionData;
-      }
+const itemStore = useItemStore();
+const section = computed(() => itemStore.homepageSections.find(s => s.id === 11));
+const items = computed(() => itemStore.homepageItems.filter(i => i.section_id === 11));
+const isLoading = computed(() => itemStore.loading);
+const hasError = computed(() => !!itemStore.error);
+const error = computed(() => itemStore.error);
+const hasItems = computed(() => items.value.length > 0);
 
-      // Fetch FAQ items
-      await this.itemStore.fetchItems('homepage_items', {
-        filters: { section_id: 11 },
-        orderBy: 'order_index',
-        ascending: true
-      });
-    } catch (error) {
-      console.error('Error fetching FAQ data:', error);
-    }
-  },
-  methods: {
-    toggleAccordion(index) {
-      if (this.isTransitioning) return;
-      
-      if (this.activeAccordion === index) {
-        this.closeAccordion();
-        return;
-      }
-      
-      if (this.activeAccordion !== null) {
-        this.switchAccordion(index);
-      } else {
-        this.openAccordion(index);
-      }
-    },
-    openAccordion(index) {
-      this.isTransitioning = true;
-      this.activeAccordion = index;
-      
-      this.$nextTick(() => {
-        this.smoothOpen(index);
-        setTimeout(() => {
-          this.isTransitioning = false;
-        }, 500);
-      });
-    },
-    closeAccordion() {
-      if (this.activeAccordion === null) return;
-      
-      this.isTransitioning = true;
-      const currentIndex = this.activeAccordion;
-      
-      this.smoothClose(currentIndex);
-      
-      setTimeout(() => {
-        this.activeAccordion = null;
-        this.isTransitioning = false;
-      }, 500);
-    },
-    switchAccordion(newIndex) {
-      this.isTransitioning = true;
-      const oldIndex = this.activeAccordion;
-      
-      this.smoothClose(oldIndex);
-      
-      setTimeout(() => {
-        this.activeAccordion = newIndex;
-        this.$nextTick(() => {
-          this.smoothOpen(newIndex);
-          setTimeout(() => {
-            this.isTransitioning = false;
-          }, 500);
-        });
-      }, 300);
-    },
-    smoothOpen(index) {
-      const element = document.getElementById(`accordion-collapse-3-${index}`);
-      if (element) {
-        element.style.maxHeight = '0px';
-        element.style.opacity = '0';
-        
-        element.offsetHeight;
-        
-        element.style.maxHeight = element.scrollHeight + 'px';
-        element.style.opacity = '1';
-        
-        setTimeout(() => {
-          if (this.activeAccordion === index) {
-            element.style.maxHeight = 'none';
-          }
-        }, 500);
-      }
-    },
-    smoothClose(index) {
-      const element = document.getElementById(`accordion-collapse-3-${index}`);
-      if (element) {
-        element.style.maxHeight = element.scrollHeight + 'px';
-        element.style.opacity = '1';
-        
-        element.offsetHeight;
-        
-        element.style.maxHeight = '0px';
-        element.style.opacity = '0';
-      }
-    }
-  },
-  beforeUnmount() {
-    this.isTransitioning = false;
-    this.itemStore?.resetState?.(); // Safe call with optional chaining
-  }
+const activeAccordion = ref(1);
+const toggleAccordion = (index) => {
+  activeAccordion.value = activeAccordion.value === index ? null : index;
 };
 </script>
-
 <style scoped>
 /* Keep your existing styles */
 .accordion-wrapper {

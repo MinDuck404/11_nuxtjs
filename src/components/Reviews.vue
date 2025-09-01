@@ -52,60 +52,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useItemStore } from '@/stores/useItemStore';
-
-// Store instance
 const itemStore = useItemStore();
-
-// State for testimonials section and items
-const testimonialsSection = ref(null);
-const reviewItems = ref([]);
-const isLoadingReviews = ref(false);
-const hasErrorReviews = ref(false);
-const errorReviews = ref(null);
+// Testimonials section
+const testimonialsSection = computed(() => itemStore.homepageSections.find(s => s.id === 10));
+const reviewItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 10));
+const isLoadingReviews = computed(() => itemStore.loading);
+const hasErrorReviews = computed(() => !!itemStore.error);
+const errorReviews = computed(() => itemStore.error);
 const hasReviews = computed(() => reviewItems.value.length > 0);
-
-// Fetch data
-const fetchData = async () => {
-  try {
-    // Fetch testimonials section
-    isLoadingReviews.value = true;
-    const testimonialsSectionData = await itemStore.fetchItem('homepage_sections', 10, { onlyReturn: true });
-    if (testimonialsSectionData) {
-      testimonialsSection.value = testimonialsSectionData;
-    }
-
-    // Fetch review items
-    const reviewsData = await itemStore.fetchItems('homepage_items', {
-      filters: { section_id: 10 },
-      orderBy: 'order_index',
-      ascending: true,
-      onlyReturn: true
-    });
-    if (reviewsData) {
-      reviewItems.value = reviewsData;
-    } else {
-      hasErrorReviews.value = true;
-      errorReviews.value = itemStore.error || 'Failed to load reviews';
-    }
-  } catch (error) {
-    hasErrorReviews.value = true;
-    errorReviews.value = error.message || 'An error occurred';
-  } finally {
-    isLoadingReviews.value = false;
-  }
-};
-
-// Khởi tạo khi component được mounted
-onMounted(() => {
-  fetchData();
-});
-
-// Dọn dẹp khi component bị unmounted
-onUnmounted(() => {
-  itemStore.resetState();
-});
 </script>
 
 <style scoped>

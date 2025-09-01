@@ -58,10 +58,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useItemStore } from '@/stores/useItemStore';
 
-// Dữ liệu cho danh sách clients
+const itemStore = useItemStore();
+// Hero section
+const heroSection = computed(() => itemStore.homepageSections.find(s => s.id === 3));
+const heroItem = computed(() => itemStore.homepageItems.find(i => i.section_id === 3));
+// Clients section
+const clientsSection = computed(() => itemStore.homepageSections.find(s => s.id === 4));
+// Clients list (static)
 const clients = ref([
   { name: 'Client 1', image: '/img/c1.png' },
   { name: 'Client 2', image: '/img/c2.png' },
@@ -71,53 +75,6 @@ const clients = ref([
   { name: 'Client 6', image: '/img/c6.png' },
   { name: 'Client 7', image: '/img/c7.png' },
 ]);
-
-// Store instance
-const itemStore = useItemStore();
-
-// State for hero section and item
-const heroSection = ref(null);
-const heroItem = ref(null);
-
-// State for clients section
-const clientsSection = ref(null);
-
-// Fetch data
-const fetchData = async () => {
-  // Fetch hero section
-  const heroSectionData = await itemStore.fetchItem('homepage_sections', 3, { onlyReturn: true });
-  if (heroSectionData) {
-    heroSection.value = heroSectionData;
-  }
-
-  // Fetch hero item (e.g., CTA button and image)
-  const heroItemData = await itemStore.fetchItems('homepage_items', {
-    filters: { section_id: 3 },
-    orderBy: 'order_index',
-    ascending: true,
-    onlyReturn: true,
-    limit: 1 // Chỉ lấy 1 item (CTA button)
-  });
-  if (heroItemData && heroItemData.length > 0) {
-    heroItem.value = heroItemData[0];
-  }
-
-  // Fetch clients section
-  const clientsSectionData = await itemStore.fetchItem('homepage_sections', 4, { onlyReturn: true });
-  if (clientsSectionData) {
-    clientsSection.value = clientsSectionData;
-  }
-};
-
-// Khởi tạo khi component được mounted
-onMounted(() => {
-  fetchData();
-});
-
-// Dọn dẹp khi component bị unmounted
-onUnmounted(() => {
-  itemStore.resetState();
-});
 
   // Texts to rotate
   onMounted(() => {

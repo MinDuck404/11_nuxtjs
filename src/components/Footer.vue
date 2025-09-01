@@ -109,12 +109,7 @@
   </div>
 </template>
 
-<script>
-import { RouterLink } from 'vue-router'
-export default {
-  name: 'Footer'
-}
-</script>
+<!-- Xóa <script> thường, chỉ giữ <script setup> -->
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'

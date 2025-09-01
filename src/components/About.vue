@@ -165,6 +165,7 @@
 </template>
 
 <script setup>
+
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useItemStore } from '@/stores/useItemStore';
 
@@ -187,24 +188,23 @@ const defaultSocialLinks = [
   { platform: 'dribbble', url: 'https://dribbble.com', icon: ['fab', 'dribbble'] },
 ];
 
-// Store instances
-const itemStoreTeam = useItemStore(); // For team
-const itemStoreProjects = useItemStore(); // For projects, separate to avoid conflict
+// Store instance
+const itemStore = useItemStore();
 
 // State for team
-const teamSection = ref(null);
-const teamItems = ref([]);
-const isLoadingTeam = ref(false);
-const hasErrorTeam = ref(false);
-const errorTeam = ref(null);
+const teamSection = computed(() => itemStore.homepageSections.find(s => s.id === 8));
+const teamItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 8));
+const isLoadingTeam = computed(() => itemStore.loading);
+const hasErrorTeam = computed(() => !!itemStore.error);
+const errorTeam = computed(() => itemStore.error);
 const hasTeamMembers = computed(() => teamItems.value.length > 0);
 
 // State for projects
-const projectsSection = ref(null);
-const projectItems = ref([]);
-const isLoadingProjects = ref(false);
-const hasErrorProjects = ref(false);
-const errorProjects = ref(null);
+const projectsSection = computed(() => itemStore.homepageSections.find(s => s.id === 9));
+const projectItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 9));
+const isLoadingProjects = computed(() => itemStore.loading);
+const hasErrorProjects = computed(() => !!itemStore.error);
+const errorProjects = computed(() => itemStore.error);
 const hasProjects = computed(() => projectItems.value.length > 0);
 
 // Tính toán số slide tối đa
@@ -390,57 +390,8 @@ const addTouchSupport = () => {
   });
 };
 
-// Fetch data
-const fetchData = async () => {
-  // Fetch team section
-  const teamSectionData = await itemStoreTeam.fetchItem('homepage_sections', 8, { onlyReturn: true });
-  if (teamSectionData) {
-    teamSection.value = teamSectionData;
-  }
-
-  // Fetch team items
-  isLoadingTeam.value = true;
-  const teamData = await itemStoreTeam.fetchItems('homepage_items', {
-    filters: { section_id: 8 },
-    orderBy: 'order_index',
-    ascending: true,
-    onlyReturn: true
-  });
-  if (teamData) {
-    teamItems.value = teamData;
-  } else {
-    hasErrorTeam.value = true;
-    errorTeam.value = itemStoreTeam.error;
-  }
-  isLoadingTeam.value = false;
-
-  // Fetch projects section
-  const projectsSectionData = await itemStoreProjects.fetchItem('homepage_sections', 9, { onlyReturn: true });
-  if (projectsSectionData) {
-    projectsSection.value = projectsSectionData;
-  }
-
-  // Fetch projects items
-  isLoadingProjects.value = true;
-  const projectsData = await itemStoreProjects.fetchItems('homepage_items', {
-    filters: { section_id: 9 },
-    orderBy: 'order_index',
-    ascending: true,
-    onlyReturn: true
-  });
-  if (projectsData) {
-    projectItems.value = projectsData;
-  } else {
-    hasErrorProjects.value = true;
-    errorProjects.value = itemStoreProjects.error;
-  }
-  isLoadingProjects.value = false;
-};
-
-// Khởi tạo khi component được mounted
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown);
-  fetchData();
   nextTick(() => {
     updateSliderPosition();
     addTouchSupport();
@@ -448,11 +399,8 @@ onMounted(() => {
   });
 });
 
-// Dọn dẹp khi component bị unmounted
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown);
-  itemStoreTeam.resetState();
-  itemStoreProjects.resetState();
 });
 </script>
 
