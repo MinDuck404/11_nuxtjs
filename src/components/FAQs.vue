@@ -69,15 +69,21 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useItemStore } from '@/stores/useItemStore';
+import { useHomepageData } from '@/composables/useHomepageData';
 
-const itemStore = useItemStore();
-const section = computed(() => itemStore.homepageSections.find(s => s.id === 11));
-const items = computed(() => itemStore.homepageItems.filter(i => i.section_id === 11));
-const isLoading = computed(() => itemStore.loading);
-const hasError = computed(() => !!itemStore.error);
-const error = computed(() => itemStore.error);
-const hasItems = computed(() => items.value.length > 0);
+// Sử dụng composable tối ưu hóa
+const {
+  faqSection,
+  faqItems,
+  isLoading,
+  hasError,
+  error,
+  hasData
+} = useHomepageData();
+
+const section = computed(() => faqSection.value);
+const items = computed(() => faqItems.value);
+const hasItems = computed(() => hasData(items.value));
 
 const activeAccordion = ref(1);
 const toggleAccordion = (index) => {

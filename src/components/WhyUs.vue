@@ -4,7 +4,7 @@
     <div class="container pb-14 pb-md-16">
       <div class="row gx-lg-8 gx-xl-12 gy-10 align-items-center">
         <div class="col-lg-7">
-          <figure v-if="whyUsImage">
+          <figure v-if="whyUsImage && whyUsImage.image_url">
             <img
               class="img-auto"
               :src="whyUsImage.image_url"
@@ -15,9 +15,9 @@
           <figure v-else>
             <img
               class="img-auto"
-              src="/img/i22.png"
-              srcset="/img/i22.png 2x"
-              alt="Illustration"
+              src="/images/whyus.png"
+              srcset="/images/whyus.png 2x"
+              alt="Why Us Illustration"
             />
           </figure>
         </div>
@@ -29,7 +29,21 @@
           <h3 v-else class="display-3 mb-7">
             We bring solutions to make life easier.
           </h3>
-          <div class="accordion accordion-wrapper" id="accordionExample">
+          
+          <!-- Loading state -->
+          <div v-if="isLoading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <!-- Error state -->
+          <div v-else-if="hasError" class="alert alert-warning">
+            Unable to load content. Please try again later.
+          </div>
+          
+          <!-- Accordion content -->
+          <div v-else class="accordion accordion-wrapper" id="accordionExample">
             <div
               v-for="(item, index) in accordionItems"
               :key="index"
@@ -76,31 +90,54 @@
 </template>
 
 <script setup>
-const itemStore = useItemStore();
-// Solutions section
-const solutionsSection = computed(() => itemStore.homepageSections.find(s => s.id === 7));
-const whyUsImage = computed(() => itemStore.homepageItems.find(i => i.section_id === 7));
-// Dữ liệu cho accordion (tạm thời tĩnh)
-const accordionItems = ref([
-  {
-    title: 'Professional Design',
-    content:
-      'Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Cras mattis consectetur purus sit amet fermentum. Praesent commodo cursus magna, vel.',
-    isOpen: true,
-  },
-  {
-    title: 'Top-Notch Support',
-    content:
-      'Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Cras mattis consectetur purus sit amet fermentum. Praesent commodo cursus magna, vel.',
-    isOpen: false,
-  },
-  {
-    title: 'Header and Slider Options',
-    content:
-      'Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Cras mattis consectetur purus sit amet fermentum. Praesent commodo cursus magna, vel.',
-    isOpen: false,
-  },
-]);
+import { useHomepageData } from '@/composables/useHomepageData';
+
+// Sử dụng composable
+const { whyUsSection, whyUsItems, isLoading, hasError } = useHomepageData();
+
+// Solutions section data
+const solutionsSection = computed(() => whyUsSection.value);
+const whyUsImage = computed(() => {
+  // Tìm item đầu tiên có image_url
+  const imageItem = whyUsItems.value?.find(item => item.image_url);
+  return imageItem || null;
+});
+
+// Dữ liệu cho accordion từ API
+const accordionItems = ref([]);
+
+// Watch whyUsItems để cập nhật accordion từ API
+watch(whyUsItems, (newItems) => {
+  if (newItems && newItems.length > 0) {
+    // Sử dụng data từ API, lọc ra những items không phải ảnh
+    const textItems = newItems.filter(item => !item.image_url);
+    accordionItems.value = textItems.map((item, index) => ({
+      title: item.title || `Feature ${index + 1}`,
+      content: item.description || 'Lorem ipsum dolor sit amet consectetur.',
+      isOpen: index === 0, // Mở item đầu tiên
+    }));
+  } else {
+    // Fallback data nếu API không có data
+    accordionItems.value = [
+      {
+        title: 'Professional Design',
+        content: 'Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh.',
+        isOpen: true,
+      },
+      {
+        title: 'Top-Notch Support', 
+        content: 'Cras mattis consectetur purus sit amet fermentum.',
+        isOpen: false,
+      },
+      {
+        title: 'Header and Slider Options',
+        content: 'Nullam id dolor id nibh ultricies vehicula ut id elit.',
+        isOpen: false,
+      },
+    ];
+  }
+}, { immediate: true });
+
 // Hàm toggle trạng thái accordion
 const toggleAccordion = (index) => {
   accordionItems.value = accordionItems.value.map((item, i) => ({

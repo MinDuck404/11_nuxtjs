@@ -167,7 +167,7 @@
 <script setup>
 
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
-import { useItemStore } from '@/stores/useItemStore';
+import { useHomepageData } from '@/composables/useHomepageData';
 
 // Dữ liệu trạng thái cho slider
 const currentSlide = ref(0);
@@ -188,24 +188,28 @@ const defaultSocialLinks = [
   { platform: 'dribbble', url: 'https://dribbble.com', icon: ['fab', 'dribbble'] },
 ];
 
-// Store instance
-const itemStore = useItemStore();
+// Sử dụng composable
+const {
+  teamSection,
+  teamItems,
+  projectsSection,
+  projectItems,
+  isLoading,
+  hasError,
+  error,
+  hasData
+} = useHomepageData();
 
-// State for team
-const teamSection = computed(() => itemStore.homepageSections.find(s => s.id === 8));
-const teamItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 8));
-const isLoadingTeam = computed(() => itemStore.loading);
-const hasErrorTeam = computed(() => !!itemStore.error);
-const errorTeam = computed(() => itemStore.error);
-const hasTeamMembers = computed(() => teamItems.value.length > 0);
+// Computed values for loading states
+const isLoadingTeam = computed(() => isLoading.value);
+const hasErrorTeam = computed(() => hasError.value);
+const errorTeam = computed(() => error.value);
+const hasTeamMembers = computed(() => hasData(teamItems.value));
 
-// State for projects
-const projectsSection = computed(() => itemStore.homepageSections.find(s => s.id === 9));
-const projectItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 9));
-const isLoadingProjects = computed(() => itemStore.loading);
-const hasErrorProjects = computed(() => !!itemStore.error);
-const errorProjects = computed(() => itemStore.error);
-const hasProjects = computed(() => projectItems.value.length > 0);
+const isLoadingProjects = computed(() => isLoading.value);
+const hasErrorProjects = computed(() => hasError.value);
+const errorProjects = computed(() => error.value);
+const hasProjects = computed(() => hasData(projectItems.value));
 
 // Tính toán số slide tối đa
 const maxSlide = computed(() => Math.max(0, projectItems.value.length - slidesPerView.value));

@@ -1,6 +1,7 @@
 // stores/useItemStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { PerformanceMonitor } from '@/utils/performance'
 
 export const useItemStore = defineStore('items', () => {
   // State
@@ -226,38 +227,114 @@ export const useItemStore = defineStore('items', () => {
     error.value = null
   }
   
-    // Fetch all homepage data once
-    const fetchHomepageData = async () => {
-      if (homepageLoaded.value) return;
-      loading.value = true;
-      error.value = null;
-      try {
-        const { $supabase } = useNuxtApp();
-        // Fetch all sections
-        const { data: sections, error: errSections } = await $supabase
-          .from('homepage_sections')
-          .select('*')
-          .order('id', { ascending: true });
-        if (errSections) throw errSections;
-        homepageSections.value = sections || [];
+  // Fetch multiple tables with Promise.all
+  const fetchMultipleTables = async (tableQueries: Array<{table: string, options?: any}>) => {
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      const { $supabase } = useNuxtApp();
+      
+      // Validate all tables first
+      tableQueries.forEach(query => validateTable(query.table));
+      
+      // Create promise array for parallel execution
+      const promises = tableQueries.map(({table, options = {}}) => {
+        const { 
+          orderBy = 'id', 
+          ascending = true, 
+          limit = 1000,
+          filters = {},
+          select = '*'
+        } = options;
+        
+        let query = $supabase
+          .from(table)
+          .select(select)
+          .order(orderBy, { ascending })
+          .limit(limit);
 
-        // Fetch all items
-        const { data: itemsData, error: errItems } = await $supabase
-          .from('homepage_items')
-          .select('*')
-          .order('order_index', { ascending: true });
-        if (errItems) throw errItems;
-        homepageItems.value = itemsData || [];
+        // Apply filters
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            query = query.eq(key, value);
+          }
+        });
 
-        homepageLoaded.value = true;
-      } catch (err: any) {
-        error.value = err.message || 'An unexpected error occurred';
-        homepageLoaded.value = false;
-        console.error('Fetch homepage data error:', err);
-      } finally {
-        loading.value = false;
-      }
+        return query;
+      });
+
+      // Execute all queries in parallel with Promise.all
+      const results = await Promise.all(promises);
+      
+      // Process results and check for errors
+      const processedResults: Record<string, any[]> = {};
+      results.forEach((result, index) => {
+        const queryInfo = tableQueries[index];
+        if (!queryInfo) return;
+        
+        if (result.error) {
+          throw new Error(`Error in table ${queryInfo.table}: ${result.error.message}`);
+        }
+        processedResults[queryInfo.table] = result.data || [];
+      });
+      
+      console.log('✅ Multiple tables fetched successfully with Promise.all:', 
+        Object.keys(processedResults).map(table => `${table}: ${processedResults[table]?.length || 0} records`).join(', ')
+      );
+      
+      return processedResults;
+      
+    } catch (err: any) {
+      error.value = err.message || 'An unexpected error occurred';
+      console.error('Fetch multiple tables error:', err);
+      throw err;
+    } finally {
+      loading.value = false;
     }
+  }
+
+  // Optimized homepage data fetch with additional data
+  const fetchAllHomepageData = async () => {
+    const monitor = PerformanceMonitor.getInstance();
+    
+    if (homepageLoaded.value) return {
+      sections: homepageSections.value,
+      items: homepageItems.value
+    };
+    
+    monitor.startTimer('fetchAllHomepageData');
+    
+    try {
+      const results = await fetchMultipleTables([
+        { 
+          table: 'homepage_sections',
+          options: { orderBy: 'id', ascending: true }
+        },
+        { 
+          table: 'homepage_items',
+          options: { orderBy: 'order_index', ascending: true }
+        }
+      ]);
+      
+      homepageSections.value = results.homepage_sections || [];
+      homepageItems.value = results.homepage_items || [];
+      homepageLoaded.value = true;
+      
+      const duration = monitor.endTimer('fetchAllHomepageData');
+      monitor.logApiCall('fetchAllHomepageData', duration);
+      
+      return {
+        sections: homepageSections.value,
+        items: homepageItems.value
+      };
+      
+    } catch (err: any) {
+      monitor.endTimer('fetchAllHomepageData');
+      console.error('Failed to fetch all homepage data:', err);
+      throw err;
+    }
+  }
 
   return {
     // State
@@ -276,9 +353,8 @@ export const useItemStore = defineStore('items', () => {
     fetchItemsGroupBy,
     resetState,
     clearError,
-      fetchHomepageData,
-    
-    // Getters (computed)
+    fetchMultipleTables,
+    fetchAllHomepageData,    // Getters (computed)
     hasItems: computed(() => items.value.length > 0),
     hasGroupedItems: computed(() => Object.keys(groupedItems.value).length > 0),
     hasError: computed(() => !!error.value),

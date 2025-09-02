@@ -84,20 +84,32 @@
 </template>
 
 <script setup>
-const itemStore = useItemStore();
-// Services section
-const servicesSection = computed(() => itemStore.homepageSections.find(s => s.id === 5));
-const serviceItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 5));
-const isLoadingServices = computed(() => itemStore.loading);
-const hasErrorServices = computed(() => !!itemStore.error);
-const errorServices = computed(() => itemStore.error);
-const hasServices = computed(() => serviceItems.value.length > 0);
-// Strategy section
-const strategySection = computed(() => itemStore.homepageSections.find(s => s.id === 6));
-const strategyItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 6));
-const isLoadingStrategy = computed(() => itemStore.loading);
-const hasErrorStrategy = computed(() => !!itemStore.error);
-const errorStrategy = computed(() => itemStore.error);
+import { useHomepageData } from '@/composables/useHomepageData';
+
+// Sử dụng composable tối ưu hóa
+const {
+  servicesSection,
+  serviceItems,
+  wedoSection,
+  wedoItems,
+  isLoading,
+  hasError,
+  error,
+  hasData
+} = useHomepageData();
+
+// Services state
+const isLoadingServices = computed(() => isLoading.value);
+const hasErrorServices = computed(() => hasError.value);
+const errorServices = computed(() => error.value);
+const hasServices = computed(() => hasData(serviceItems.value));
+
+// Strategy section (using wedo data - section 6)
+const strategySection = computed(() => wedoSection.value);
+const strategyItems = computed(() => wedoItems.value);
+const isLoadingStrategy = computed(() => isLoading.value);
+const hasErrorStrategy = computed(() => hasError.value);
+const errorStrategy = computed(() => error.value);
 const hasStrategySteps = computed(() => strategyItems.value.length > 0);
 </script>
 

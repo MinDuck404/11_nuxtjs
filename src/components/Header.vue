@@ -58,13 +58,11 @@
 </template>
 
 <script setup>
+import { useHomepageData } from '@/composables/useHomepageData'
 
-const itemStore = useItemStore();
-// Hero section
-const heroSection = computed(() => itemStore.homepageSections.find(s => s.id === 3));
-const heroItem = computed(() => itemStore.homepageItems.find(i => i.section_id === 3));
-// Clients section
-const clientsSection = computed(() => itemStore.homepageSections.find(s => s.id === 4));
+// Sử dụng composable
+const { heroItem, clientsSection } = useHomepageData()
+
 // Clients list (static)
 const clients = ref([
   { name: 'Client 1', image: '/img/c1.png' },
@@ -76,8 +74,8 @@ const clients = ref([
   { name: 'Client 7', image: '/img/c7.png' },
 ]);
 
-  // Texts to rotate
-  onMounted(() => {
+// Texts to rotate
+onMounted(() => {
   const texts = ["mobile design", "web design", "3D animation"];
   let index = 0;
   const el = document.getElementById("rotating-text");

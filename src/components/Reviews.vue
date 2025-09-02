@@ -52,14 +52,24 @@
 </template>
 
 <script setup>
-const itemStore = useItemStore();
-// Testimonials section
-const testimonialsSection = computed(() => itemStore.homepageSections.find(s => s.id === 10));
-const reviewItems = computed(() => itemStore.homepageItems.filter(i => i.section_id === 10));
-const isLoadingReviews = computed(() => itemStore.loading);
-const hasErrorReviews = computed(() => !!itemStore.error);
-const errorReviews = computed(() => itemStore.error);
-const hasReviews = computed(() => reviewItems.value.length > 0);
+import { useHomepageData } from '@/composables/useHomepageData';
+
+// Sử dụng composable
+const {
+  testimonialsSection,
+  testimonialItems,
+  isLoading,
+  hasError,
+  error,
+  hasData
+} = useHomepageData();
+
+// Computed values for component state
+const reviewItems = computed(() => testimonialItems.value);
+const isLoadingReviews = computed(() => isLoading.value);
+const hasErrorReviews = computed(() => hasError.value);
+const errorReviews = computed(() => error.value);
+const hasReviews = computed(() => hasData(reviewItems.value));
 </script>
 
 <style scoped>
